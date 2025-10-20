@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chúc mừng 20/10 — Khánh Vân</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg1:#0f0c29;--bg2:#302b63;--accent1:#ff7eb3;--accent2:#ffd1dc}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial}
+    body{
+      background: radial-gradient(900px 400px at 10% 20%, rgba(255,126,179,0.10), transparent 6%),
+                  radial-gradient(700px 300px at 90% 80%, rgba(255,209,220,0.06), transparent 6%),
+                  linear-gradient(120deg,var(--bg1),var(--bg2));
+      color:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:24px
+    }
+
+    .stage{width:min(1000px,96%);height:min(720px,86vh);position:relative;border-radius:20px;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.03));box-shadow:0 12px 50px rgba(0,0,0,0.6);overflow:hidden}
+
+    header{display:flex;gap:18px;align-items:center}
+    .logo{width:84px;height:84px;border-radius:16px;display:grid;place-items:center;font-family:'Playfair Display',serif;font-size:20px;color:#2b0b16;background:conic-gradient(from 120deg,#ff7eb3,#ffd1dc)}
+    h1{font-family:'Playfair Display',serif;margin:0;font-size:36px;color:var(--accent2);text-shadow:0 6px 30px rgba(0,0,0,0.6)}
+    p.lead{margin:8px 0 0;color:rgba(255,255,255,0.9)}
+
+    .envelope{position:absolute;width:96px;height:64px;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.35);display:grid;place-items:center;cursor:pointer;transform-origin:center;overflow:visible;transition:background 0.3s}
+    .envelope .flap{position:absolute;top:-18px;left:0;right:0;height:36px;border-top-left-radius:8px;border-top-right-radius:8px;transform-origin:top;transition:transform 260ms ease, background 0.3s}
+    .envelope.small{width:72px;height:56px}
+    .envelope .heart{font-size:18px}
+
+    @keyframes fall{0%{transform:translateY(-160vh) rotate(0) scale(0.9);opacity:0}10%{opacity:1}100%{transform:translateY(120vh) rotate(360deg) scale(1);opacity:0.95}}
+
+    .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(0.9);background:linear-gradient(180deg,#fff,#fff8fb);color:#1b0720;padding:20px;border-radius:14px;box-shadow:0 20px 60px rgba(3,6,23,0.6);z-index:9999;max-width:520px;width:92%;display:none;animation:openEffect 0.6s ease}
+    .modal.open{display:block;animation:openEffect 0.6s ease forwards}
+
+    @keyframes openEffect {
+      0% {transform:translate(-50%,-50%) scale(0.6) rotate(-10deg);opacity:0;filter:blur(6px)}
+      60% {transform:translate(-50%,-50%) scale(1.05) rotate(2deg);opacity:1;filter:blur(0)}
+      100% {transform:translate(-50%,-50%) scale(1) rotate(0)}
+    }
+
+    .modal h3{margin:0 0 8px;font-family:'Playfair Display',serif}
+    .modal p{margin:0 0 12px}
+    .modal .close{background:transparent;border:0;padding:8px 12px;border-radius:10px;cursor:pointer}
+
+    .controls{position:absolute;left:20px;bottom:18px;display:flex;gap:10px;align-items:center}
+    .btn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+    .btn.primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#2b0b16}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.12);color:#fff}
+
+    footer{position:absolute;right:20px;bottom:18px;color:rgba(255,255,255,0.6);font-size:13px}
+
+    @media (max-width:640px){h1{font-size:24px}.logo{width:60px;height:60px}}
+  </style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <header>
+      <div class="logo">20/10</div>
+      <div>
+        <h1>Gửi Khánh Vân — Những lời chúc yêu thương</h1>
+        <p class="lead">Mỗi lá thư là một lời chúc. Nhấp vào phong thư để đọc — chúc Khánh Vân ngày 20/10 ngập tràn yêu thương!</p>
+      </div>
+    </header>
+
+    <div id="sky"></div>
+
+    <div class="modal" id="modal">
+      <h3 id="mTitle">Lời chúc</h3>
+      <p id="mBody"></p>
+      <div style="text-align:right"><button class="close" id="closeBtn">Đóng</button></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn primary" id="startBtn">Bắt đầu rơi thư</button>
+      <button class="btn ghost" id="stopBtn">Dừng</button>
+    </div>
+
+    <footer>— Từ Tấn Lộc 💌</footer>
+  </div>
+
+  <script>
+    const messages = [
+      "Chúc Khánh Vân luôn rạng rỡ, nụ cười luôn ngời sáng như hoa.",
+      "Mong rằng mọi ước mơ của Vân đều dần trở thành hiện thực.",
+      "Gửi đến Vân những ngày đầy yêu thương, bình yên và hạnh phúc.",
+      "Cảm ơn Vân vì đã khiến mọi thứ xung quanh ấm áp hơn.",
+      "Chúc Vân sức khỏe dồi dào, công việc thuận lợi và luôn vững vàng.",
+      "Mỗi khoảnh khắc bên Vân đều đáng trân trọng — chúc em có một ngày 20/10 tuyệt vời.",
+      "Hy vọng nụ cười của Vân luôn là động lực cho mọi ngày mới.",
+      "Yêu Vân thật nhiều — mong em luôn được yêu thương như em xứng đáng.",
+      "Chúc Vân của anh luôn rạng rỡ như nắng mai, nụ cười luôn ngọt ngào như viên kẹo em thích.",
+      "Chúc Vân 20/10 luôn rạng rỡ trong tình yêu của anh, nụ cười luôn là thứ xua tan mọi mệt mỏi của anh.",
+      "Chúc Vân yêu luôn rạng rỡ tựa thiên thần, nụ cười luôn tỏa sáng ấm áp cả trái tim này." ,
+      "Mong rằng mọi ước mơ của Vân đều sớm thành hiện thực, vì em xứng đáng với mọi điều tốt đẹp nhất." ,
+      "Mong rằng mọi ước mơ, dù là nhỏ nhất, của Vân đều được anh đồng hành và thực hiện cùng em." ,
+      "Mong rằng mọi ước mơ của 'cô Mây' (Vân) đều bay cao, bay xa và cập bến hạnh phúc." ,
+      "Gửi đến Vân của anh một ngày 20/10 đầy yêu thương, ngọt ngào và chỉ riêng của chúng ta.", 
+      "Gửi đến Vân triệu nụ hôn, những ngày bình yên và hạnh phúc trọn vẹn khi ở bên anh." ,
+      "Gửi đến Vân tất cả tình yêu anh có, những ngày êm đềm như mây và hạnh phúc vô bờ." ,
+      "Cảm ơn Vân vì đã đến bên anh, khiến thế giới của anh ấm áp và ý nghĩa hơn vạn lần." ,
+      "Cảm ơn Vân vì đã luôn là 'áng mây' dịu dàng, khiến cuộc sống của anh ấm áp hơn mỗi ngày." ,
+      "Cảm ơn Vân vì đã mang tình yêu đến, khiến trái tim anh luôn ấm áp, ngay cả trong những ngày giá lạnh nhất." ,
+      "Chúc Vân sức khỏe dồi dào để luôn bên anh, công việc thuận lợi và luôn là cô gái hạnh phúc nhất." ,
+      "Chúc Vân sức khỏe để tận hưởng mọi điều tuyệt vời, công việc hanh thông và luôn vững vàng trong vòng tay anh." ,
+      "Chúc Vân sức khỏe, bình an, công việc suôn sẻ và luôn vững vàng tin vào tình yêu của chúng mình." ,
+      "Mỗi khoảnh khắc được nắm tay Vân dạo phố đều đáng trân trọng — chúc em có một ngày 20/10 thật vui vẻ." ,
+      "Mỗi khoảnh khắc bên Vân đều là một món quà vô giá — chúc em có một ngày 20/10 ngập tràn nụ cười." ,
+      "Mỗi khoảnh khắc nhìn thấy Vân cười đều đáng trân trọng — chúc em có một ngày 20/10 ngọt ngào nhất." ,
+      "Hy vọng nụ cười của Vân luôn là ánh sáng dẫn đường cho anh mỗi ngày. Yêu em vô cùng." ,
+      "Hy vọng nụ cười của Vân luôn là lý do lớn nhất để anh cố gắng mỗi ngày. 20/10 hạnh phúc nhé em!" ,
+      "Hy vọng nụ cười của Vân luôn là liều thuốc tinh thần ngọt ngào nhất chữa lành mọi mệt mỏi cho anh." ,
+      "Yêu Vân thật nhiều — mong em luôn hạnh phúc và được trân trọng như em xứng đáng." ,
+      "Yêu 'cô Mây' của anh thật nhiều — mong em luôn được bao bọc trọn vẹn trong tình yêu của anh." ,
+      "Yêu Vân thật nhiều — mong em luôn biết rằng em là người con gái tuyệt vời nhất anh từng có.",
+    ];
+
+    const colors = [
+      ['#fff7f7', '#ffd1d1'],
+      ['#f0f9ff', '#cce7ff'],
+      ['#fffaf0', '#ffe6cc'],
+      ['#f5f0ff', '#e0ccff'],
+      ['#f0fff0', '#ccffcc']
+    ];
+
+    const flaps = [
+      ['#ff7eb3', '#ffd1dc'],
+      ['#7eb3ff', '#d1e0ff'],
+      ['#ffb37e', '#ffe1d1'],
+      ['#b37eff', '#e1d1ff'],
+      ['#7effb3', '#d1ffe1']
+    ];
+
+    const sky = document.getElementById('sky');
+    let running = false;
+    let envelopeTimer = null;
+
+    function getStageRect(){ return document.getElementById('stage').getBoundingClientRect(); }
+
+    function createEnvelope(idx){
+      const stageRect = getStageRect();
+      const el = document.createElement('div');
+      el.className = 'envelope';
+      if(Math.random()<0.25) el.classList.add('small');
+      const left = Math.random()* (stageRect.width - 120) + 20;
+      el.style.left = left + 'px';
+      el.style.top = -120 + 'px';
+      const dur = 14 + Math.random()*10;
+      el.style.animation = `fall ${dur}s linear forwards`;
+      el.style.transform = `rotate(${Math.random()*40-20}deg)`;
+
+      const colorIdx = Math.floor(Math.random()*colors.length);
+      const bgColors = colors[colorIdx];
+      const flapColors = flaps[colorIdx];
+
+      el.style.background = `linear-gradient(180deg, ${bgColors[0]}, ${bgColors[1]})`;
+      const flap = document.createElement('div');
+      flap.className='flap';
+      flap.style.background = `linear-gradient(180deg, ${flapColors[0]}, ${flapColors[1]})`;
+
+      const heart = document.createElement('div'); heart.className='heart'; heart.textContent='💌';
+      el.appendChild(flap); el.appendChild(heart);
+
+      const msg = messages[idx % messages.length];
+      el.dataset.msg = msg;
+      el.dataset.title = `Gửi Khánh Vân`;
+
+      el.addEventListener('click', (e)=>{
+        e.stopPropagation(); openModal(el.dataset.title, el.dataset.msg);
+      });
+
+      el.addEventListener('animationend', ()=>el.remove());
+
+      sky.appendChild(el);
+    }
+
+    function startRain(){
+      if(running) return; running = true;
+      let count=0;
+      envelopeTimer = setInterval(()=>{
+        const n = 1 + Math.floor(Math.random()*2);
+        for(let i=0;i<n;i++) createEnvelope(count++);
+      }, 1000);
+    }
+    function stopRain(){ running=false; clearInterval(envelopeTimer); envelopeTimer=null; }
+
+    const modal = document.getElementById('modal');
+    const mTitle = document.getElementById('mTitle');
+    const mBody = document.getElementById('mBody');
+    document.getElementById('closeBtn').addEventListener('click', closeModal);
+    document.addEventListener('click', closeModal);
+    function openModal(title, body){ 
+      mTitle.textContent = title; 
+      mBody.textContent = body; 
+      modal.classList.add('open');
+    }
+    function closeModal(){ modal.classList.remove('open'); }
+
+    document.getElementById('startBtn').addEventListener('click', startRain);
+    document.getElementById('stopBtn').addEventListener('click', stopRain);
+
+    setTimeout(startRain,800);
+  </script>
+</body>
+</html>
